@@ -13,19 +13,22 @@ const server = http.createServer(async (req, res) => {
 	let htmlContent;
 	res.writeHead(200, {'Content-Type': 'text/html'});
 
-	if (req.url === '/') {
-		htmlContent = await fs.readFile('./src/views/home/index.html', 'utf-8');
-		res.write(htmlContent);
-		return res.end();
+	switch (req.url) {
+		case '/':
+			htmlContent = await fs.readFile('./src/views/home/index.html', 'utf-8');
+			break;
+		case '/cats/add-cat':
+			htmlContent = await fs.readFile('./src/views/addCat.html', 'utf-8');
+			break;
+		case '/cats/add-breed':
+			htmlContent = await fs.readFile('./src/views/addBreed.html', 'utf-8');
+			break;	
+		default:
+			htmlContent = '<h1>404 Not Found</h1>';
 	}
 
-	if (req.url === '/cats/add-breed') {
-		htmlContent = await fs.readFile('./src/views/addBreed.html', 'utf-8');
-		res.write(htmlContent);
-		return res.end();
-	}
-
-
+	res.write(htmlContent);
+	res.end();
 });
 
 server.listen(3000, () => {
