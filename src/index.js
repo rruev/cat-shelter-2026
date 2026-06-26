@@ -1,5 +1,6 @@
 import http from 'http';
 import fs from 'fs/promises';
+import cats from './cats.js';
 
 const server = http.createServer(async (req, res) => {
 	
@@ -15,7 +16,7 @@ const server = http.createServer(async (req, res) => {
 
 	switch (req.url) {
 		case '/':
-			htmlContent = await fs.readFile('./src/views/home/index.html', 'utf-8');
+			htmlContent = await renderHomePage();
 			break;
 		case '/cats/add-cat':
 			htmlContent = await fs.readFile('./src/views/addCat.html', 'utf-8');
@@ -34,3 +35,26 @@ const server = http.createServer(async (req, res) => {
 server.listen(3000, () => {
   console.log('Server running at http://localhost:3000/');
 });
+
+async function renderHomePage() {
+	const htmlContent = await fs.readFile('./src/views/home/index.html', 'utf-8');
+
+	const catTemplate = (cat) => 
+		` 		 <li>
+                    <img src="${cat.imageUrl}" alt="${cat.name}">
+                    <h3>${cat.name}</h3>
+                    <p><span>Breed: </span>${cat.breed}}</p>
+                    <p><span>Description: </span>${cat.description}</p>
+                    <ul class="buttons">
+                        <li class="btn edit"><a href="">Change Info</a></li>
+                        <li class="btn delete"><a href="">New Home</a></li>
+                    </ul>
+                </li>`;
+	
+
+	const catsContent = `<ul>${cats.map(cat => catTemplate(cat)).join('\n')}</ul>`;
+	const result = htmlContent.replace('{{cats}}', catsContent);
+
+	console.log(catsContent)
+	return result
+}
