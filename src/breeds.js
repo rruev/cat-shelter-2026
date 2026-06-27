@@ -1,22 +1,22 @@
 const breeds = [
     {
-        id: 1,
+        id: '1',
         name: "Maine Coon"
     },
     {
-        id: 2,
+        id: '2',
         name: "Persian"
     },
     {
-        id: 3,
+        id: '3',
         name: "Siamese"
     },
     {
-        id: 4,
+        id: '4',
         name: "Ragdoll"
     },
     {
-        id: 5,
+        id: '5',
         name: "Sphynx"
     }
 ]

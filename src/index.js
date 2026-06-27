@@ -3,6 +3,7 @@ import fs from 'fs/promises';
 import cats from './cats.js';
 import { addBreed } from './breedService.js';
 import breeds from './breeds.js';
+import { addCat } from './catsService.js';
 
 const server = http.createServer(async (req, res) => {
 	if (req.method === 'POST' && req.url === '/cats/add-breed') {
@@ -13,6 +14,25 @@ const server = http.createServer(async (req, res) => {
 		req.on('end', async () => {
 			const breedName = new URLSearchParams(breed).get('breed');
 			await addBreed(breedName);
+		});
+
+		return res.writeHead(302, { 'Location': '/' }).end();
+	}
+
+	if (req.method === 'POST' && req.url === '/cats/add-cat') {
+		let catData = '';
+		req.on('data', chunk => {
+			catData += chunk;
+		});
+		req.on('end', async () => {
+			const formData = new URLSearchParams(catData);
+			const newCat = {
+				name: formData.get('name'),
+				breedId: formData.get('breed'),
+				description: formData.get('description'),
+				imageUrl: formData.get('imageUrl')
+			};
+			await addCat(newCat);
 		});
 
 		return res.writeHead(302, { 'Location': '/' }).end();
@@ -75,7 +95,7 @@ async function renderHomePage() {
 async function renderBreedOptions() {
 	const htmlContent = await fs.readFile('./src/views/addCat.html', 'utf-8');
 
-	const breedOptions = breeds.map(breed => `<option value="${breed.name}">${breed.name}</option>`).join('\n');
+	const breedOptions = breeds.map(breed => `<option value="${breed.id}">${breed.name}</option>`).join('\n');
 
 	const result = htmlContent.replace('{{breedOptions}}', breedOptions);
 	return result;
