@@ -16,3 +16,20 @@ export function addCat(catData) {
     cats.push(newCat);
     return newCat;
 }
+
+export function findCatById(catId) {
+    return cats.find(cat => cat.id === catId);
+}
+
+export function editCat(catId, updatedData) {
+    const cat = findCatById(catId);
+    if (cat) {
+        const breedName = findBreedById(updatedData.breedId)?.name || 'Unknown Breed';
+        cat.name = updatedData.name;
+        cat.breedId = updatedData.breedId;
+        cat.breed = breedName;
+        cat.description = updatedData.description;
+        cat.imageUrl = updatedData.imageUrl;
+    }
+    return cat;
+}
