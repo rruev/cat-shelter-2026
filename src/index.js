@@ -33,7 +33,7 @@ const server = http.createServer(async (req, res) => {
 			htmlContent = await renderHomePage();
 			break;
 		case '/cats/add-cat':
-			htmlContent = await fs.readFile('./src/views/addCat.html', 'utf-8');
+			htmlContent = await renderBreedOptions();
 			break;
 		case '/cats/add-breed':
 			htmlContent = await fs.readFile('./src/views/addBreed.html', 'utf-8');
@@ -69,5 +69,14 @@ async function renderHomePage() {
 	const catsContent = `<ul>${cats.map(cat => catTemplate(cat)).join('\n')}</ul>`;
 	const result = htmlContent.replace('{{cats}}', catsContent);
 
+	return result;
+}
+
+async function renderBreedOptions() {
+	const htmlContent = await fs.readFile('./src/views/addCat.html', 'utf-8');
+
+	const breedOptions = breeds.map(breed => `<option value="${breed.name}">${breed.name}</option>`).join('\n');
+
+	const result = htmlContent.replace('{{breedOptions}}', breedOptions);
 	return result;
 }
