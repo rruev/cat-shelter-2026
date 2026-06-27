@@ -1,8 +1,21 @@
 import http from 'http';
 import fs from 'fs/promises';
 import cats from './cats.js';
+import { addBreed } from './breedService.js';
+import breeds from './breeds.js';
 
 const server = http.createServer(async (req, res) => {
+	if (req.method === 'POST' && req.url === '/cats/add-breed') {
+		let breed = '';
+		req.on('data', chunk => {
+			breed += chunk;
+		});
+		req.on('end', async () => {
+			const breedName = new URLSearchParams(breed).get('breed');
+			await addBreed(breedName);
+			return res.end();
+		});
+	}
 	
 	if (req.url === '/styles/site.css') {
 		const cssFile = await fs.readFile('./src/styles/site.css', 'utf-8');
@@ -43,7 +56,7 @@ async function renderHomePage() {
 		` 		 <li>
                     <img src="${cat.imageUrl}" alt="${cat.name}">
                     <h3>${cat.name}</h3>
-                    <p><span>Breed: </span>${cat.breed}}</p>
+                    <p><span>Breed: </span>${cat.breed}</p>
                     <p><span>Description: </span>${cat.description}</p>
                     <ul class="buttons">
                         <li class="btn edit"><a href="">Change Info</a></li>
@@ -55,6 +68,5 @@ async function renderHomePage() {
 	const catsContent = `<ul>${cats.map(cat => catTemplate(cat)).join('\n')}</ul>`;
 	const result = htmlContent.replace('{{cats}}', catsContent);
 
-	console.log(catsContent)
-	return result
+	return result;
 }
