@@ -3,7 +3,7 @@ import fs from 'fs/promises';
 import cats from './cats.js';
 import { addBreed } from './breedService.js';
 import breeds from './breeds.js';
-import { addCat, findCatById, editCat } from './catsService.js';
+import { addCat, findCatById, editCat, deleteCat } from './catsService.js';
 
 const server = http.createServer(async (req, res) => {
 	if (req.method === 'POST' && req.url === '/cats/add-breed') {
@@ -57,6 +57,18 @@ const server = http.createServer(async (req, res) => {
 
 		return res.writeHead(302, { 'Location': '/' }).end();
 	}
+
+	if (req.method === 'POST' && req.url.startsWith('/cats/newHome/')) {
+		let catData = '';
+		req.on('data', chunk => {
+			catData += chunk;
+		});
+		req.on('end', async () => {
+			const catId = req.url.split('/').pop();
+			await deleteCat(catId);
+		});
+		return res.writeHead(302, { 'Location': '/' }).end();
+	}
 	
 	if (req.url === '/styles/site.css') {
 		const cssFile = await fs.readFile('./src/styles/site.css', 'utf-8');
@@ -77,6 +89,9 @@ const server = http.createServer(async (req, res) => {
 	} else if (req.url.startsWith('/cats/editCat/')) {
 		const catId = req.url.split('/').pop();
 		htmlContent = await renderEditCatPage(catId);
+	} else if (req.url.startsWith('/cats/newHome/')) {
+		const catId = req.url.split('/').pop();
+		htmlContent = await renderCatShelterPage(catId);
 	} else {
 		htmlContent = '<h1>404 Not Found</h1>';
 	}
@@ -128,6 +143,16 @@ async function renderEditCatPage(catId) {
 		.replace('{{description}}', cat.description)
 		.replace('{{imageUrl}}', cat.imageUrl)
 		.replace('{{breedOptions}}', replaceBreedOptions(cat.breed));
+	return result;
+}
+
+async function renderCatShelterPage(catId) {
+	const htmlContent = await fs.readFile('./src/views/catShelter.html', 'utf-8');
+	const cat = findCatById(catId);
+	const result = htmlContent.replaceAll('{{name}}', cat.name)
+		.replace('{{imageUrl}}', cat.imageUrl)
+		.replace('{{description}}', cat.description)
+		.replace('{{breed}}', replaceBreedOptions(cat.breed));
 	return result;
 }
 
