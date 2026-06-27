@@ -13,8 +13,9 @@ const server = http.createServer(async (req, res) => {
 		req.on('end', async () => {
 			const breedName = new URLSearchParams(breed).get('breed');
 			await addBreed(breedName);
-			return res.end();
 		});
+
+		return res.writeHead(302, { 'Location': '/' }).end();
 	}
 	
 	if (req.url === '/styles/site.css') {
